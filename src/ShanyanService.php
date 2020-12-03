@@ -11,9 +11,9 @@ use GuzzleHttp\RequestOptions;
 
 class ShanyanService
 {
-    const MOBILE_VALIDATE_URL = 'https://api.253.com/open/flashsdk/mobile-query';
+    const MOBILE_QUERY_URL = 'https://api.253.com/open/flashsdk/mobile-query';
 
-    const MOBILE_QUERY_URL = 'https://api.253.com/open/flashsdk/mobile-validate';
+    const MOBILE_VALIDATE_URL = 'https://api.253.com/open/flashsdk/mobile-validate';
 
     const RESPONSE_PHRASES = [
         '200000' => '请求成功',
@@ -51,7 +51,7 @@ class ShanyanService
 
     private $appkey;
 
-    private $encryptType = "ase";
+    private $encryptType = "aes";
 
     private $privateKey;
 
@@ -146,10 +146,11 @@ class ShanyanService
      * @throws ServerErrorException
      */
     private function doGetMobile($token, $param = []){
+        var_dump($this->getQueryModebileUrl());
+        var_dump($this->buildRequestForQueryMobile($token, $param));
+
         $response = $this->client->request('POST', $this->getQueryModebileUrl(), [
-            [
-                RequestOptions::FORM_PARAMS => $this->buildRequestForQueryMobile($token, $param)
-            ]
+            RequestOptions::FORM_PARAMS => $this->buildRequestForQueryMobile($token, $param)
         ]);
 
         if ($response) {
@@ -176,6 +177,9 @@ class ShanyanService
             throw new ServerErrorException('服务异常');
         }
 
+        var_dump($responseArray);
+
+
         if ($responseArray["code"] != '200000') {
             throw new ServerErrorException(array_get(self::RESPONSE_PHRASES, $responseArray['code'],
                 sprintf('服务异常(%s)', $responseArray['code'])));
@@ -188,15 +192,15 @@ class ShanyanService
         $outId = array_get($param, "out_id", "");
         $clientIp = array_get($param, "client_ip", "");
 
-        $params = [
+        $data = [
             "appId" => $this->appid,
             "token" => $token,
             "outId" => $outId,
             'clientIp' => $clientIp,
-            'encryptType' => $this->encryptType === "rsa" ? 1 : 0,
+            'encryptType' => $this->encryptType === "rsa" ? '1' : '0',
         ];
 
-        $sign = $this->calculateSign($params);
+        $sign = $this->calculateSign($data);
 
         $data["sign"] = $sign;
 
