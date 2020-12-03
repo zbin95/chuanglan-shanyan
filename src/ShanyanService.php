@@ -128,7 +128,7 @@ class ShanyanService
     public function decryMobile($encryptMobile){
         if ($this->encryptType === 'aes'){
             $key=md5($this->appkey);
-            $mobile=openssl_decrypt(hex2bin($encryptMobile),  'AES-128-CBC', substr($this->appkey,0,16), OPENSSL_RAW_DATA,  substr($this->appkey,16));
+            $mobile=openssl_decrypt(hex2bin($encryptMobile),  'AES-128-CBC', substr($key,0,16), OPENSSL_RAW_DATA,  substr($key,16));
         }elseif($this->encryptType === 'rsa'){
             $pi_key =  openssl_pkey_get_private($this->privateKey);
             openssl_private_decrypt(hex2bin($encryptMobile),$mobile,$pi_key);//私钥解密
