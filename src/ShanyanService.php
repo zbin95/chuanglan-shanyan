@@ -146,9 +146,6 @@ class ShanyanService
      * @throws ServerErrorException
      */
     private function doGetMobile($token, $param = []){
-        var_dump($this->getQueryModebileUrl());
-        var_dump($this->buildRequestForQueryMobile($token, $param));
-
         $response = $this->client->request('POST', $this->getQueryModebileUrl(), [
             RequestOptions::FORM_PARAMS => $this->buildRequestForQueryMobile($token, $param)
         ]);
@@ -176,9 +173,6 @@ class ShanyanService
         if (!$responseArray){
             throw new ServerErrorException('服务异常');
         }
-
-        var_dump($responseArray);
-
 
         if ($responseArray["code"] != '200000') {
             throw new ServerErrorException(array_get(self::RESPONSE_PHRASES, $responseArray['code'],
