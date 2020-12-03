@@ -128,7 +128,7 @@ class ShanyanService
     public function decryMobile($encryptMobile){
         if ($this->encryptType === 'aes'){
             $key=md5($this->appkey);
-            $mobile=openssl_decrypt(hex2bin($encryptMobile),  'AES-128-CBC', substr($key,0,16), OPENSSL_RAW_DATA,  substr($key,16));
+            $mobile=openssl_decrypt(hex2bin($encryptMobile),  'AES-128-CBC', substr($this->appkey,0,16), OPENSSL_RAW_DATA,  substr($this->appkey,16));
         }elseif($this->encryptType === 'rsa'){
             $pi_key =  openssl_pkey_get_private($this->privateKey);
             openssl_private_decrypt(hex2bin($encryptMobile),$mobile,$pi_key);//私钥解密
@@ -197,6 +197,7 @@ class ShanyanService
         ];
 
         $sign = $this->calculateSign($params);
+
         $data["sign"] = $sign;
 
         return $data;
@@ -224,10 +225,12 @@ class ShanyanService
      * @return string
      */
     private function calculateSign($param){
-        $sortedParam = array_sort($param);
+
+        ksort($param);
+
         $string = "";
-        foreach($sortedParam as $key => $value){
-            $string = $key.$value;
+        foreach($param as $key => $value){
+            $string .= $key.$value;
         }
 
         return bin2hex(hash_hmac('sha256',$string, $this->appkey, true));
